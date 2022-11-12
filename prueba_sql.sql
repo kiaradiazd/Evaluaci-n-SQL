@@ -62,6 +62,7 @@ CREATE TABLE `evaluacionsql_schema`.`ventas`(
 `id_producto` INT NOT NULL,
 `id_cliente` INT NOT NULL,
 `fecha_venta` DATE  NOT NULL,
+`cantidad` INT NOT NULL,
 PRIMARY KEY (`id_venta`),
 FOREIGN KEY (`id_producto`) references `evaluacionsql_schema`.`productos` (`id_producto`),
 FOREIGN KEY (`id_cliente`) references `evaluacionsql_schema`.`clientes` (`id_cliente`));
@@ -86,6 +87,11 @@ PRIMARY KEY (`id_libro_contable`),
 FOREIGN KEY (`id_factura`) references `evaluacionsql_schema`.`facturas` (`id_factura`),
 FOREIGN KEY (`id_boleta`) references `evaluacionsql_schema`.`boletas` (`id_boleta`)); 
 
+#compras y ventas llevan fechas por lo que no era necesario replicar el campo de fecha por los fk, pero volvi a 
+#replicar las fechas en facturas y boletas por temas contables.
+
+#no especificaron si las ganancias que en un futuro quería poder extraer eran bruta(con iva), o neta
+#comente a hector esto, así que aclaro que considere iva, ya que, ganacia bruta o neta se podran obtener
 
 INSERT INTO evaluacionsql_schema.proveedores (nombre, rut) 
 VALUES ('abarrotes spaa', '24.244.244-4'),
@@ -110,15 +116,23 @@ VALUES (1, 1, '2021-01-01',2000, 100000, 19000, 119000),
 (6, 6, '2021-06-01', 750, 30000, 5700, 35700);
 
 INSERT INTO evaluacionsql_schema.productos (id_compra, precio)
-VALUES (1, 3000), (2, 1500), (3, 100), (4, 1000), (5, 1500), (6, 750);
+VALUES (1, 5000), (2, 5000), (3, 5000), (4, 5000), (5, 5000), (6, 7500);
 
 INSERT INTO evaluacionsql_schema.clientes
-VALUES (1, 21-111.111-1, 'ruben', 'perez');
+VALUES (1, '21.111.111-1', 'ruben', 'perez'), (2, '22.111.111-1', 'belen', 'gomez'), (3, '23.111.111-1', 'jose', 'diaz');
+
+INSERT INTO evaluacionsql_schema.ventas (id_producto, id_cliente, fecha_venta, cantidad)
+VALUES (1, 1, '2021-01-05', 100), (2, 2, '2021-02-01', 50), (4, 1, '2021-03-01', 100);
+
+INSERT INTO evaluacionsql_schema.boletas (id_venta, fecha_emision, total_neto, total_ivadf, total)
+VALUES (1, '2021-01-05', 420168, 79832, 500000), (2, '2021-02-01', 210084, 39916, 250000), (3, '2021-02-01', 420168, 79832, 500000);
 
 
+
+SELECT compras.nombre, compras.cantidad_productos, proveedores.nombre, proveedores.rut
+FROM evaluacionsql_schema.compras
+LEFT JOIN evaluacionsql_schema.proveedores on evaluacionsql_schema.compras.id_proveedor = evaluacionsql_schema.proveedores.id_proveedor
+WHERE proveedores.nombre = 'de todo spa';
 
 
 SET sql_safe_updates=0;
-DELETE FROM evaluacionsql_schema.facturas;
-SELECT * FROM evaluacionsql_schema.facturas;
-SELECT * FROM evaluacionsql_schema.compras;
